@@ -1,7 +1,7 @@
 
 
 
-ADDON_NM=struct
+ADDON_NM=obj
 TEST_SCRIPT_NM	?= $(addsuffix .js, $(ADDON_NM))
 ADDON_SRC		?= $(addsuffix .cc, $(ADDON_NM))
 
@@ -30,5 +30,6 @@ clean:
 	@echo ">>>>>>>>start clean"
 	@node-gyp clean
 	@echo "clean finished<<<<<<<<"
+
 
 

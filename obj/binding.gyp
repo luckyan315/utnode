@@ -1,8 +1,8 @@
 {
     "targets": [
         {
-            "target_name": "struct",
-            "sources": [ "struct.cc" ]
+            "target_name": "obj",
+            "sources": [ "obj.cc", "my_object.cc" ]
         }
     ]
 }
