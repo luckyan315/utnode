@@ -1,19 +1,17 @@
-#ifndef MYOBJECT_H
-#define MYOBJECT_H
+#ifndef EMB_OBJECT_H
+#define EMB_OBJECT_H
 
 #include <node.h>
 
-#include "test_t.h"
+#include "emb_test_t.h"
 
-class MyObject : public node::ObjectWrap {
+class EmbObject : public node::ObjectWrap {
     public:
         static void Init(v8::Handle<v8::Object> exports);
 
-        test_t * GetPtr() {return &test_;}
-
     private:
-        explicit MyObject(double value = 0, int ival = 0, char * str = 0);
-        ~MyObject();
+        explicit EmbObject(test_t * value = 0, int ival = 0);
+        ~EmbObject();
 
         static v8::Handle<v8::Value> New(const v8::Arguments& args);
         static v8::Persistent<v8::Function> constructor;
@@ -21,10 +19,7 @@ class MyObject : public node::ObjectWrap {
         static v8::Handle<v8::Value> PlusOne(const v8::Arguments& args);
         static v8::Handle<v8::Value> Print(const v8::Arguments& args);
 
-        MyObject* Unwrap(v8::Local<v8::Object> obj);
-
-        double value_;
-        test_t test_;
+        emb_test_t emb_test_;
 };
 
 #endif

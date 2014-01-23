@@ -2,6 +2,7 @@
 
 #include <node.h>
 #include "my_object.h"
+#include <string.h>
 
 using namespace v8;
 
@@ -14,6 +15,9 @@ MyObject::MyObject(double value, int ival, char * str) : value_(value) {
 }
 
 MyObject::~MyObject() {
+    if(test_.str_ != NULL){
+        delete test_.str_;
+    }
 }
 
 void MyObject::Init(Handle<Object> exports) {
@@ -44,12 +48,14 @@ Handle<Value> MyObject::New(const Arguments& args) {
         double value = args[0]->IsUndefined() ? 0 : args[0]->NumberValue();
         int ival = args[1]->IsUndefined() ? 0 : args[1]->IntegerValue();
 
-        String::AsciiValue s2(args[2]);
+        
         char * str = 0;
         if(!args[2]->IsUndefined() && args[2]->IsString()){
-            str = *s2;
+            String::AsciiValue s2(args[2]);
+            str = new char[s2.length()+1];
+            memcpy(str, *s2, s2.length());
+            str[s2.length()] = 0;
         }
-
         MyObject* obj = new MyObject(value, ival, str);
         obj->Wrap(args.This());
         return args.This();
@@ -74,7 +80,13 @@ Handle<Value> MyObject::Print(const Arguments& args) {
     HandleScope scope;
 
     MyObject* obj = ObjectWrap::Unwrap<MyObject>(args.This());
-    printf("obj value is single value %f, struct double val %f, struct int value %d, struct string value %s\n", obj->value_, obj->test_.dval_, obj->test_.ival_, obj->test_.str_);
+    printf("obj value is single value [%f], struct double val [%f], struct int value [%d], struct string value [%s]\n", obj->value_, obj->test_.dval_, obj->test_.ival_, obj->test_.str_);
 
     return scope.Close(Undefined());
+}
+
+MyObject* MyObject::Unwrap(Local<Object> obj) {
+    assert(!obj.IsEmpty());
+    assert(obj->InternalFieldCount() > 0);
+    return static_cast<MyObject*>(obj->GetPointerFromInternalField(0));
 }

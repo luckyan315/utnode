@@ -10,3 +10,7 @@ console.log( obj.plusOne() ); // 13
 
 
 obj.print();
+
+
+var ebmobj = new obj_addon.EmbObject(obj, 1)
+ebmobj.print();
