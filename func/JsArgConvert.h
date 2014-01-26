@@ -2,25 +2,14 @@
 #ifndef  JSARGCONVERT_H
 #define  JSARGCONVERT_H
 
-#include <stdexcept>
-class ArgumentLengthError : public std::logic_error{
-public:
-	ArgumentLengthError() : logic_error("argument  length error"){}
-};
-
-class ArgumentTypeError : public std::logic_error{
-public:
-	ArgumentTypeError(): logic_error("argument type is error"){}
-
-};
-
-
-
 #include <v8.h>
+#include "JsException.h"
+
 
 class JsArgConvert{
 
 public:
+// length validation
 static void LenGt(const v8::Arguments & args, int len){
 	if(args.Length() < len){
 		throw ArgumentLengthError();	
@@ -37,7 +26,9 @@ static void LenLt(const v8::Arguments & args, int len){
 	}
 }
 
-static int32_t ToBoolean(const v8::Local<v8::Value> & val){
+
+//convert js value to cpp  value 
+static bool ToBoolean(const v8::Local<v8::Value> & val){
 	if(val->IsUndefined() || !val->IsBoolean()){
 		throw ArgumentTypeError();	
 	}
@@ -45,13 +36,15 @@ static int32_t ToBoolean(const v8::Local<v8::Value> & val){
 }
 
 static int32_t ToInt32(const v8::Local<v8::Value> & val){
-	if(val->IsUndefined() || !val->IsInt32()){
+	if(val->IsUndefined() 
+        || (!val->IsInt32() && !val->IsBoolean()) ){
 		throw ArgumentTypeError();	
 	}
 	return val->Int32Value();
 }
 static uint32_t ToUint32(const v8::Local<v8::Value> & val){
-	if(val->IsUndefined() || !val->IsUint32()){
+	if(val->IsUndefined() 
+        || (!val->IsUint32() && ! val->IsBoolean())){
 		throw ArgumentTypeError();	
 	}
 	return val->Uint32Value();
@@ -66,22 +59,29 @@ static double ToDouble(const v8::Local<v8::Value> & val){
 	return val->NumberValue();
 }
 
-static v8::Handle<v8::Value> from_bool(v8::HandleScope & scope , const int32_t ret){
+
+//convert js value from  cpp value 
+static v8::Handle<v8::Value> FromBool(v8::HandleScope & scope , const bool ret){
 	return 	scope.Close(v8::Boolean::New(ret));
 }
-static v8::Handle<v8::Value> from_int32(v8::HandleScope & scope , const int32_t ret){
+static v8::Handle<v8::Value> FromBool(v8::HandleScope & scope , const int32_t ret){
+	return 	scope.Close(v8::Boolean::New(ret));
+}
+static v8::Handle<v8::Value> FromInt32(v8::HandleScope & scope , const int32_t ret){
 	return 	scope.Close(v8::Integer::New(ret));
 }
-static v8::Handle<v8::Value> from_uint32(v8::HandleScope & scope , const uint32_t ret){
+static v8::Handle<v8::Value> FromUint32(v8::HandleScope & scope , const uint32_t ret){
 	return 	scope.Close(v8::Integer::New(ret));
 }
-static v8::Handle<v8::Value> from_double(v8::HandleScope & scope , const double ret){
+static v8::Handle<v8::Value> FromFloat(v8::HandleScope & scope , const float ret){
+    return FromDouble(scope, (const double)ret);
+}
+static v8::Handle<v8::Value> FromDouble(v8::HandleScope & scope , const double ret){
 	return 	scope.Close(v8::Number::New(ret));
 }
-static v8::Handle<v8::Value> from_float(v8::HandleScope & scope , const float ret){
-    return from_double(scope, (const double)ret);
+static v8::Handle<v8::Value> FromCharPtr(v8::HandleScope & scope , const char * ret){
+	return 	scope.Close(v8::String::New(ret));
 }
-
 };
 
 #endif   /* JSARGCONVERT_H */
