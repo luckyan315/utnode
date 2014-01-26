@@ -1,89 +1,101 @@
 #include <node.h>
 #include <v8.h>
+#include "JsArgConvert.h"
+
+
+
+
+using namespace v8;  
+
+/*  
+v8::Handle<v8::Value> skin_method_add(v8::HandleScope & scope, const v8::Arguments & args){
+    JsArgConvert::LenGt(args, 2);
+    int one = JsArgConvert::ToInt32(args[0]);
+    int two = JsArgConvert::ToInt32(args[1]);
+    int ret = add(one, two);
+    return JsArgConvert::from_int32(scope, ret);
+}
+Handle<Value> Method_add(const Arguments& args) {
+    HandleScope scope;
+	try{
+        return skin_method_add(scope, args);
+	}
+	catch(ArgumentLengthError & arg){
+        ThrowException(Exception::TypeError(String::New(arg.what())));
+        return scope.Close(Undefined());
+	}
+	catch(ArgumentTypeError & arg){
+        ThrowException(Exception::TypeError(String::New(arg.what())));
+        return scope.Close(Undefined());
+	}
+}*/
+
+template<typename T>
+class JsCommon{
+public:
+    static Handle<Value> Method(const Arguments& args) {
+        HandleScope scope;
+        try{
+            T * obj = new T();
+            return obj->skin_method(scope, args);
+        }
+        catch(ArgumentLengthError & arg){
+            ThrowException(Exception::TypeError(String::New(arg.what())));
+            return scope.Close(Undefined());
+        }
+        catch(ArgumentTypeError & arg){
+            ThrowException(Exception::TypeError(String::New(arg.what())));
+            return scope.Close(Undefined());
+        }
+    }
+};
+
+class JsIFunc {
+    virtual v8::Handle<v8::Value> skin_method(v8::HandleScope & scope, const v8::Arguments & args) = 0;
+};
+
 
 
 int add(int one, int two){
     return one + two;
 }
+class JsAdd : JsIFunc{
+public:
+    virtual v8::Handle<v8::Value> skin_method(v8::HandleScope & scope, const v8::Arguments & args){
+        JsArgConvert::LenGt(args, 2);
+        int one = JsArgConvert::ToInt32(args[0]);
+        int two = JsArgConvert::ToInt32(args[1]);
+        int ret = add(one, two);
+        return JsArgConvert::from_int32(scope, ret);
+    }
+};
+
 
 double add_d(double one ,double two){
     return one * two;
 }
-
-double minus_d(double one ,double two){
-    return one - two;
-}
-
-#include <stdexcept>
-
-class ArgumentLengthError : public std::logic_error{
+class JsAdd_D : JsIFunc{
 public:
-	ArgumentLengthError() : logic_error("argument  length error"){}
+virtual v8::Handle<v8::Value> skin_method(v8::HandleScope & scope, const v8::Arguments & args){
+    JsArgConvert::LenGt(args, 2);
+    double one = JsArgConvert::ToDouble(args[0]);
+    double two = JsArgConvert::ToDouble(args[1]);
+    double ret = add_d(one, two);
+    return JsArgConvert::from_double(scope, ret);
+}
 };
 
-class ArgumentTypeError : public std::logic_error{
-public:
-	ArgumentTypeError(): logic_error("argument type is error"){}
 
-};
-
-using namespace v8;  
-
-void arg_len_gt(const Arguments & args, int len){
-	if(args.Length() < len){
-		throw ArgumentLengthError();	
-	}
-}
-
-int32_t arg_to_int32(const Local<Value> & val){
-	if(val->IsUndefined() || !val->IsInt32()){
-		throw ArgumentTypeError();	
-	}
-	return val->IntegerValue();
-}
-
-double arg_to_double(const Local<Value> & val){
-	if(val->IsUndefined() || !val->IsNumber()){
-		throw ArgumentTypeError();	
-	}
-	return val->NumberValue();
-}
-
-Handle<Value> int32_to_ret(HandleScope & scope , const int32_t ret){
-	return 	scope.Close(v8::Integer::New(ret));
-}
-Handle<Value> double_to_ret(HandleScope & scope , const double ret){
-	return 	scope.Close(v8::Number::New(ret));
-}
-
-Handle<Value> Method_add(const Arguments& args) {
-    HandleScope scope;
-	try{
-		arg_len_gt(args, 2);
-		int one = arg_to_int32(args[0]);
-		int two = arg_to_int32(args[1]);
-		int ret = add(one, two);
-		return int32_to_ret(scope, ret);
-	}
-	catch(ArgumentLengthError & arg){
-        ThrowException(Exception::TypeError(String::New(arg.what())));
-        return scope.Close(Undefined());
-	}
-	catch(ArgumentTypeError & arg){
-        ThrowException(Exception::TypeError(String::New(arg.what())));
-        return scope.Close(Undefined());
-	}
-}
-
+/* 
 Handle<Value> Method_add_d(const Arguments& args) {
     HandleScope scope;
 
 	try{
-		arg_len_gt(args, 2);
-		double one = arg_to_double(args[0]);
-		double two = arg_to_double(args[1]);
+		JsArgConvert::LenGt(args, 2);
+		double one = JsArgConvert::ToDouble(args[0]);
+		double two = JsArgConvert::ToDouble(args[1]);
 		double ret = add_d(one, two);
-		return double_to_ret(scope, ret);
+		return JsArgConvert::from_double(scope, ret);
 	}
 	catch(ArgumentLengthError & arg){
         ThrowException(Exception::TypeError(String::New(arg.what())));
@@ -94,16 +106,22 @@ Handle<Value> Method_add_d(const Arguments& args) {
         return scope.Close(Undefined());
 	}
 }
+*/
 
+
+
+double minus_d(double one ,double two){
+    return one - two;
+}
 Handle<Value> Method_minus_d(const Arguments& args) {
     HandleScope scope;
 
 	try{
-		arg_len_gt(args, 2);
-		double one = arg_to_double(args[0]);
-		double two = arg_to_double(args[1]);
+		JsArgConvert::LenGt(args, 2);
+		double one = JsArgConvert::ToDouble(args[0]);
+		double two = JsArgConvert::ToDouble(args[1]);
 		double ret = minus_d(one, two);
-		return double_to_ret(scope, ret);
+		return JsArgConvert::from_double(scope, ret);
 	}
 	catch(ArgumentLengthError & arg){
         ThrowException(Exception::TypeError(String::New(arg.what())));
@@ -117,9 +135,9 @@ Handle<Value> Method_minus_d(const Arguments& args) {
 
 void init(Handle<Object> target) {
     target->Set(String::NewSymbol("add"),
-            FunctionTemplate::New(Method_add)->GetFunction());
+            FunctionTemplate::New(JsCommon<JsAdd>::Method)->GetFunction());
     target->Set(String::NewSymbol("add_d"),
-            FunctionTemplate::New(Method_add_d)->GetFunction());
+            FunctionTemplate::New(JsCommon<JsAdd_D>::Method)->GetFunction());
     target->Set(String::NewSymbol("minus_d"),
             FunctionTemplate::New(Method_minus_d)->GetFunction());
 }
