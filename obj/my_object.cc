@@ -48,6 +48,8 @@ Handle<Value> MyObject::New(const Arguments& args) {
         double value = args[0]->IsUndefined() ? 0 : args[0]->NumberValue();
         int ival = args[1]->IsUndefined() ? 0 : args[1]->IntegerValue();
 
+        Local<String> pstr = args[2]->ToString();
+        printf("is external ascii string %d,  str %d \n", args[2]->IsExternal(), pstr->IsExternalAscii());
         
         char * str = 0;
         if(!args[2]->IsUndefined() && args[2]->IsString()){

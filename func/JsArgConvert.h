@@ -4,6 +4,8 @@
 
 #include <v8.h>
 #include "JsException.h"
+#include <string>
+#include <boost/shared_array.hpp>
 
 
 class JsArgConvert{
@@ -59,6 +61,23 @@ static double ToDouble(const v8::Local<v8::Value> & val){
 	return val->NumberValue();
 }
 
+static void ToString(const v8::Local<v8::Value> & val, std::string & str){
+	if(val->IsUndefined() || !val->IsString()){
+		throw ArgumentTypeError();	
+	}
+    v8::String::AsciiValue asc(val);
+    str.assign(*asc);
+}
+
+static boost::shared_array<char> ToNewCharPtr(const v8::Local<v8::Value> & val){
+	if(val->IsUndefined() || !val->IsString()){
+		throw ArgumentTypeError();	
+	}
+    v8::Local<v8::String> str = val->ToString();
+    boost::shared_array<char> ret(new char[str->Length()+1]);
+    str->WriteAscii(ret.get());
+    return ret;
+}
 
 //convert js value from  cpp value 
 static v8::Handle<v8::Value> FromBool(v8::HandleScope & scope , const bool ret){
@@ -81,6 +100,10 @@ static v8::Handle<v8::Value> FromDouble(v8::HandleScope & scope , const double r
 }
 static v8::Handle<v8::Value> FromCharPtr(v8::HandleScope & scope , const char * ret){
 	return 	scope.Close(v8::String::New(ret));
+}
+
+static v8::Handle<v8::Value> FromUndefined(v8::HandleScope & scope){
+	return 	scope.Close(v8::Undefined());
 }
 };
 
