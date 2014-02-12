@@ -5,7 +5,16 @@ function User(cd,passwd, phone_no, email){
     this._email = email;
 
     this._is_model_created = false;
+
+    User.ModelName = 'User';
+    User.Model = {
+        cd         :String,
+        passwd     :String,
+        phone_no   :String,
+        email      :String,
+    };
 }
+
 
 User.prototype.toString = function(){
     return this._cd ;
@@ -32,13 +41,8 @@ function getDbConnnection(){
 User.prototype.createModel = function (){
     if(this._is_model_created == false){
         var dbConnect = getDbConnnection()
-        this._model =  dbConnect.model('User'
-            , {
-                cd         :String,
-                passwd     :String,
-                phone_no   :String,
-                email      :String,
-            });
+        this._model =  dbConnect.model(User.ModelName, User.Model);
+        this._is_model_created = true;
     }
 }
 
@@ -51,10 +55,11 @@ User.prototype.save = function(){
         phone_no   :this._phone_no,
         email      :this._email,
     });
-    return this._doc.save(function (err){
+    function __save_err(err){
         if(err)
             console.log("save data error");
-    })
+    }
+    return this._doc.save(__save_err);
 }
 
 // Test Code
