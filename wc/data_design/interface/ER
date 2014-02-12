@@ -1,0 +1,19 @@
+User:  oid, name, ....
+Stock: oid, name, cd, firm_oid, pinyin_abbr
+Firm:  oid, name, ....addr....., stk_oid
+News:  oid, name, content,
+Keyword:oid
+
+
+User-Stock  -->  stk_oid->keywords->news_oid
+User-News   -->  news_oid
+User-Keyword --> keywords_oid --> news_oid
+
+
+News-Keyword
+Keyword-News
+
+//cache for special function
+cd-stock : oid, stk_oid, firm_oid
+
+
